@@ -5,11 +5,13 @@ project (Carrera)
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
-# Requerimos de NCurses y de Hilos
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 
+# Requerimos de NCurses y de Hilos
 set (THREADS_PREFER_PTHREAD_FLAG ON)
 find_package (Threads REQUIRED)
-find_package (Curses REQUIRED)
+set (CURSES_NEED_NCURSES TRUE)
+find_package (NCursesw REQUIRED)
 
 # Banderas para que gcc nos grite mas :)
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
@@ -18,21 +20,13 @@ if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
     set (CMAKE_C_FLAGS_RELEASE "")
 endif()
 
-if (NOT CURSES_FOUND)
-    message (FATAL_ERROR "CMake falló en encontrar una librería de Curses")
-endif()
-
-if (NOT (CURSES_HAVE_NCURSES_H OR CURSES_HAVE_NCURSES_NCURSES_H))
-    message (FATAL_ERROR "El curses instalado no contiene ncurses")
-endif()
-
 # Versión
 set (VERSION_MAYOR 0)
 set (VERSION_MENOR 1)
 
 # Configuración de filas y columnas
-set (FILAS    30)
-set (COLUMNAS 30)
+set (FILAS    10)
+set (COLUMNAS 100)
 
 configure_file (
     "${PROJECT_SOURCE_DIR}/src/config.h.in"

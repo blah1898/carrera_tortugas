@@ -1,8 +1,8 @@
 /* Archivo de configuración para CMake */
 // Número de versión
-#define VERSION_MAYOR @VERSION_MAJOR@
+#define VERSION_MAYOR @VERSION_MAYOR@
 #define VERSION_MENOR @VERSION_MENOR@
 
 // Número de filas y columnas de las tortugas
 #define FILAS @FILAS@
-#define COLS  @COLS@
+#define COLUMNAS  @COLUMNAS@

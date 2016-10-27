@@ -9,7 +9,7 @@
 #include "config.h"
 #include "simbolos.h"
 
-WINDOW *crear_ventana(int altura, int anchura, int inicio_y, int inicio_x);
+WINDOW *crear_ventana_bordes(int altura, int anchura, int inicio_y, int inicio_x);
 void abortar(const char *mensaje, int cod_error);
 
 int main(int argc, char *argv[])
@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     attrset(A_NORMAL);
 
     /* Creamos la ventana de la carrera */
-    WINDOW *ventana_carrera = crear_ventana(FILAS + 2, // Numero filas + bordes
+    WINDOW *ventana_carrera = crear_ventana_bordes(FILAS + 2, // Numero filas + bordes
             COLUMNAS + 2, // Numero columnas + bordes
             1, // Iniciamos uno abajo
             (max_x - (COLUMNAS + 2)) / 2);
@@ -86,14 +86,23 @@ int main(int argc, char *argv[])
     wrefresh(ventana_carrera);
 
     /* Creamos la ventana de mensajes */
-    WINDOW *ventana_mensajes = crear_ventana(max_y - FILAS - 3,
+    WINDOW *ventana_mensajes_borde = crear_ventana_bordes(max_y - FILAS - 3,
             max_x,
             FILAS + 3,
             0);
 
+    WINDOW *ventana_mensajes = newwin(max_y - FILAS - 5,
+            max_x-2,
+            FILAS + 4,
+            1);
+
+    scrollok(ventana_mensajes, TRUE);
     // Movemos el cursor a la salida
-    wmove (ventana_mensajes, 1, 1);
-    wprintw(ventana_mensajes, "Mensajes: \n");
+    wmove (ventana_mensajes, 0, 0);
+    
+    for(int i = 0; i < 100; i++) {
+        wprintw(ventana_mensajes, "%d\n", i);
+    }
 
     refresh();
     wrefresh(ventana_mensajes);
@@ -127,7 +136,7 @@ void abortar(const char *mensaje, int cod_error)
     exit(cod_error);
 }
 
-WINDOW *crear_ventana(int altura, int anchura, int inicio_y, int inicio_x)
+WINDOW *crear_ventana_bordes(int altura, int anchura, int inicio_y, int inicio_x)
 {
     WINDOW *ventana_local;
 

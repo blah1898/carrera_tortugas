@@ -11,7 +11,7 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/"
 set (THREADS_PREFER_PTHREAD_FLAG ON)
 find_package (Threads REQUIRED)
 set (CURSES_NEED_NCURSES TRUE)
-find_package (NCursesw REQUIRED)
+find_package (Curses REQUIRED)
 
 # Banderas para que gcc nos grite mas :)
 if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)

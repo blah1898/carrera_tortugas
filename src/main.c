@@ -6,6 +6,8 @@
 #include <unistd.h>
 #include <locale.h>
 #include <ncurses.h>
+#include <errno.h>
+#include "tortuga.h"
 #include "config.h"
 #include "simbolos.h"
 
@@ -23,6 +25,20 @@ int main(int argc, char *argv[])
 
     /* Inicialización */
     initscr();
+    start_color();
+
+    /* Generamos colores */
+    init_pair(1, 1, 0);
+    init_pair(2, 2, 0);
+    init_pair(3, 3, 0);
+    init_pair(4, 4, 0);
+    init_pair(5, 5, 0);
+    init_pair(6, 6, 0);
+    init_pair(7, 31, 0);
+    init_pair(8, 34, 0);
+    init_pair(9, 35, 0);
+    init_pair(10, 38, 0);
+
     cbreak(); // Recibimos sin necesitar de un enter
     keypad(stdscr, TRUE); // Recibimos teclas de números, así como funciones (F1-F13)
 
@@ -66,6 +82,7 @@ int main(int argc, char *argv[])
     /* Imprimimos el título */
     const char *titulo = "CARRERA DE TORTUGAS";
     attron(A_BOLD);
+    attron(COLOR_PAIR(1));
     mvaddstr(0, (max_x - strlen(titulo)) / 2, titulo);
     attrset(A_NORMAL);
 
@@ -98,22 +115,50 @@ int main(int argc, char *argv[])
 
     scrollok(ventana_mensajes, TRUE);
     // Movemos el cursor a la salida
-    wmove (ventana_mensajes, 0, 0);
-    
-    for(int i = 0; i < 100; i++) {
-        wprintw(ventana_mensajes, "%d\n", i);
-    }
+    wprintw(ventana_mensajes, "Mensajes:\n" );
 
     refresh();
     wrefresh(ventana_mensajes);
 
-    while (TRUE)
+    Tortuga tortugas[10];
+    pthread_t hilos_tortugas[10];
+    
+    // Aqui se almacena si la carrera ya terminó
+    int carrera_terminada = 0;
+    sem_t semaforo_ventanas;
+
+    if (sem_init (&semaforo_ventanas, 0, 1) != 0)
     {
-        if(getch() == 'x')
-        {
-            break;
-        };
+        wprintw (ventana_mensajes, "ERROR: No se pudo crear el semáforo");
+        endwin();
+        return 2;
+
     }
+
+    srand( time(NULL));
+
+    /* Crear tortugas */
+    for (int i = 0; i < num_tortugas; i++)
+    {
+        tortugas[i].color = i+1;
+        tortugas[i].numero = i;
+        tortugas[i].pos = 1;
+        tortugas[i].carrera_terminada = &carrera_terminada;
+        tortugas[i].ventana_carrera = ventana_carrera;
+        tortugas[i].ventana_mensajes = ventana_mensajes;
+        tortugas[i].semaforo_ventanas = &semaforo_ventanas;
+
+        if (Tortuga_correr (&tortugas[i], &hilos_tortugas[i]) != 0)
+        {
+            wprintw (ventana_mensajes, "ERROR: No se pudo crear tortuga %d: %d", i, errno);
+            getch();
+            endwin();
+            return 3;
+        }
+    }
+
+    /* Esperar tortugas*/
+    /* Imprimir resultados */
 
     delwin(ventana_mensajes);
     delwin(ventana_carrera);

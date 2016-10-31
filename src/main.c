@@ -169,7 +169,7 @@ int main(int argc, char *argv[])
     for (int i = 0; i < num_tortugas; i++)
     {
         wattrset(ventana_mensajes, A_NORMAL);
-        wprintw(ventana_mensajes, "Tortuga %d se movía %d, esperaba %d, y en total se movió %d\n", i, resultados[i]->pasos_periodo, resultados[i]->tiempo_descanso, resultados[i]->pasos_dados);
+        wprintw(ventana_mensajes, "Tortuga %d se movía %d, esperaba %d, y en total se movió %d\n", i, resultados[i]->pasos, resultados[i]->espera, resultados[i]->pasos_total);
     }
 
     wrefresh(ventana_mensajes);
@@ -178,6 +178,7 @@ int main(int argc, char *argv[])
 
     delwin(ventana_mensajes);
     delwin(ventana_carrera);
+    delwin(ventana_mensajes_borde);
 
     endwin();
 }

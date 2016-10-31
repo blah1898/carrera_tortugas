@@ -22,9 +22,9 @@ struct _Tortuga {
 };
 
 struct _Resultado {
-    int pasos_dados;
-    int pasos_periodo;
-    int tiempo_descanso;
+    int pasos_total;
+    int pasos;
+    int espera;
 
 };
 

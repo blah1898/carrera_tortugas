@@ -24,9 +24,15 @@ endif()
 set (VERSION_MAYOR 0)
 set (VERSION_MENOR 1)
 
-# Configuración de filas y columnas
-set (FILAS    10)
-set (COLUMNAS 100)
+# Configuración tamaños de carrera
+set (MAX_TORTUGAS  10)
+set (MIN_TORTUGAS   2)
+set (TAMANO_PISTA 100)
+set (TAMANO_MIN_MENSAJES 5)
+set (MIN_PASOS 2)
+set (MAX_PASOS 10)
+set (MIN_ESPERA 1)
+set (MAX_ESPERA 5)
 
 configure_file (
     "${PROJECT_SOURCE_DIR}/src/config.h.in"

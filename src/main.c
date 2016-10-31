@@ -45,11 +45,11 @@ int main(int argc, char *argv[])
     /* Revisamos que la carrera quepa en pantalla */
     getmaxyx(stdscr, max_y, max_x);
 
-    if (max_x < COLUMNAS + 2 || max_y < (FILAS + 6))
+    if (max_x < TAMANO_PISTA + 2 || max_y < (MAX_TORTUGAS + TAMANO_MIN_MENSAJES + 4))
     {
         /* Si no cabe la carrera, terminamos */
         char mensaje[50];
-        sprintf(mensaje, "Esta aplicación requiere de una terminal de %dx%d.", COLUMNAS + 2, FILAS+6);
+        sprintf(mensaje, "Esta aplicación requiere de una terminal de %dx%d.", TAMANO_PISTA + 2, (MAX_TORTUGAS + TAMANO_MIN_MENSAJES + 4));
         abortar(mensaje, 1);
     }
 
@@ -87,30 +87,30 @@ int main(int argc, char *argv[])
     attrset(A_NORMAL);
 
     /* Creamos la ventana de la carrera */
-    WINDOW *ventana_carrera = crear_ventana_bordes(FILAS + 2, // Numero filas + bordes
-            COLUMNAS + 2, // Numero columnas + bordes
+    WINDOW *ventana_carrera = crear_ventana_bordes(MAX_TORTUGAS + 2, 
+            TAMANO_PISTA + 2, 
             1, // Iniciamos uno abajo
-            (max_x - (COLUMNAS + 2)) / 2);
+            (max_x - (TAMANO_PISTA + 2)) / 2);
 
     /* Creamos la meta */
     /* Modificamos un poco los bordes */
-    mvwadd_wch(ventana_carrera, 0, COLUMNAS-3, &U252F);
-    mvwadd_wch(ventana_carrera, FILAS+1, COLUMNAS-3, &U2537);
+    mvwadd_wch(ventana_carrera, 0, TAMANO_PISTA-2, &U252F);
+    mvwadd_wch(ventana_carrera, MAX_TORTUGAS+1, TAMANO_PISTA-2, &U2537);
     /* Imprimimos la meta */
-    wmove(ventana_carrera, 1, COLUMNAS - 3);
-    wvline_set(ventana_carrera, &U254E, FILAS);
+    wmove(ventana_carrera, 1, TAMANO_PISTA - 2);
+    wvline_set(ventana_carrera, &U254E, MAX_TORTUGAS);
 
     wrefresh(ventana_carrera);
 
     /* Creamos la ventana de mensajes */
-    WINDOW *ventana_mensajes_borde = crear_ventana_bordes(max_y - FILAS - 3,
+    WINDOW *ventana_mensajes_borde = crear_ventana_bordes(max_y - MAX_TORTUGAS - 3,
             max_x,
-            FILAS + 3,
+            MAX_TORTUGAS + 3,
             0);
 
-    WINDOW *ventana_mensajes = newwin(max_y - FILAS - 5,
+    WINDOW *ventana_mensajes = newwin(max_y - MAX_TORTUGAS - 5,
             max_x-2,
-            FILAS + 4,
+            MAX_TORTUGAS + 4,
             1);
 
     scrollok(ventana_mensajes, TRUE);

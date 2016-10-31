@@ -14,8 +14,8 @@ void *Tortuga_correr_hilo(void *tortuga_ptr);
 int Tortuga_correr(Tortuga *tortuga, pthread_t *hilo_ptr)
 {
     /* Generamos el número de pasos y el tiempo de espera */
-    tortuga->pasos = rand() % 10 + 1;
-    tortuga->espera = rand() % 5 + 1;
+    tortuga->pasos = rand() % (MAX_PASOS + 1 - MIN_PASOS) + MIN_PASOS;
+    tortuga->espera = rand() % (MAX_ESPERA + 1 - MIN_ESPERA) + MIN_ESPERA;
 
     /* Colocamos la tortuga en su posición */
     wattron(tortuga->ventana_carrera, COLOR_PAIR(tortuga->color));
@@ -58,10 +58,10 @@ void *Tortuga_correr_hilo(void *tortuga_ptr)
 
         tortuga->pos += tortuga->pasos;
 
-        if (tortuga->pos >= COLUMNAS - 3)
+        if (tortuga->pos >= TAMANO_PISTA - 3)
         {
             *(tortuga->carrera_terminada) = 1;
-            tortuga->pos = COLUMNAS - 2;
+            tortuga->pos = TAMANO_PISTA - 1;
             wattron(tortuga->ventana_carrera, A_BOLD);
         }
 

@@ -157,8 +157,24 @@ int main(int argc, char *argv[])
         }
     }
 
+    Resultado *resultados[10];
+
     /* Esperar tortugas*/
+    for (int i = 0; i < num_tortugas; i++)
+    {
+        pthread_join(hilos_tortugas[i], (void **)&resultados[i]);
+    }
     /* Imprimir resultados */
+
+    for (int i = 0; i < num_tortugas; i++)
+    {
+        wattrset(ventana_mensajes, A_NORMAL);
+        wprintw(ventana_mensajes, "Tortuga %d se movía %d, esperaba %d, y en total se movió %d\n", i, resultados[i]->pasos_periodo, resultados[i]->tiempo_descanso, resultados[i]->pasos_dados);
+    }
+
+    wrefresh(ventana_mensajes);
+
+    getch();
 
     delwin(ventana_mensajes);
     delwin(ventana_carrera);

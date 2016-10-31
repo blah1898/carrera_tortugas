@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
 
 #include "tortuga.h"
 #include "config.h"
@@ -71,6 +72,7 @@ void *Tortuga_correr_hilo(void *tortuga_ptr)
 
         sem_post(tortuga->semaforo_ventanas); 
     }
+    resultado->pasos_dados = tortuga->pos;
 
     return resultado;
 }

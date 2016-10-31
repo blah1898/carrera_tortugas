@@ -167,6 +167,8 @@ int main(int argc, char *argv[])
     {
         wattrset(ventana_mensajes, A_NORMAL);
         wprintw(ventana_mensajes, "Tortuga %d se movía %d, esperaba %d, y en total se movió %d\n", i, resultados[i]->pasos, resultados[i]->espera, resultados[i]->pasos_total);
+        /* Eliminamos el resultado ya no necesitado */
+        free(resultados[i]);
     }
 
     wrefresh(ventana_mensajes);

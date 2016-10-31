@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
     /* Revisamos que la carrera quepa en pantalla */
     getmaxyx(stdscr, max_y, max_x);
 
+    /* Revisamos que la carrera y la caja de mensajes quepan */
     if (max_x < TAMANO_PISTA + 2 || max_y < (MAX_TORTUGAS + TAMANO_MIN_MENSAJES + 4))
     {
         /* Si no cabe la carrera, terminamos */
@@ -76,17 +77,18 @@ int main(int argc, char *argv[])
     attrset(A_NORMAL);
 
     /* Creamos la ventana de la carrera */
-    WINDOW *ventana_carrera = crear_ventana_bordes(MAX_TORTUGAS + 2, 
-            TAMANO_PISTA + 2, 
-            1, // Iniciamos uno abajo
-            (max_x - (TAMANO_PISTA + 2)) / 2);
+    WINDOW *ventana_carrera = crear_ventana_bordes(MAX_TORTUGAS + 2, // altura de MAX_TORTUGAS + 2 por los bordes
+            TAMANO_PISTA + 2,  // anchura de MAX_TORTUGAS + 2 por los bordes 
+            1, // Abajo de el título
+            (max_x - (TAMANO_PISTA + 2)) / 2); // Centrado en X
 
     /* Creamos la meta */
-    /* Modificamos un poco los bordes */
-    mvwadd_wch(ventana_carrera, 0, TAMANO_PISTA-2, &U252F);
-    mvwadd_wch(ventana_carrera, MAX_TORTUGAS+1, TAMANO_PISTA-2, &U2537);
+    /* Modificamos un poco los bordes, para que quede bien dibujada la
+     * meta */
+    mvwadd_wch(ventana_carrera, 0, TAMANO_PISTA-1, &U252F);
+    mvwadd_wch(ventana_carrera, MAX_TORTUGAS+1, TAMANO_PISTA-1, &U2537);
     /* Imprimimos la meta */
-    wmove(ventana_carrera, 1, TAMANO_PISTA - 2);
+    wmove(ventana_carrera, 1, TAMANO_PISTA - 1);
     wvline_set(ventana_carrera, &U254E, MAX_TORTUGAS);
 
     wrefresh(ventana_carrera);
@@ -102,33 +104,34 @@ int main(int argc, char *argv[])
             MAX_TORTUGAS + 4,
             1);
 
+    /* Hacemos la ventana de mensajes *scrolleable */
     scrollok(ventana_mensajes, TRUE);
-    // Movemos el cursor a la salida
     wprintw(ventana_mensajes, "Mensajes:\n" );
 
     refresh();
     wrefresh(ventana_mensajes);
 
+    /* Creamos espacio para los hilos y para las tortugas */
     Tortuga tortugas[MAX_TORTUGAS];
     pthread_t hilos_tortugas[MAX_TORTUGAS];
     
-    // Aqui se almacena si la carrera ya terminó
+    /* Creamos una variable para el estado de la carrera */
     int carrera_terminada = 0;
     sem_t semaforo_ventanas;
 
+    /* Creamos el semáforo */
     if (sem_init (&semaforo_ventanas, 0, 1) != 0)
     {
-        wprintw (ventana_mensajes, "ERROR: No se pudo crear el semáforo");
-        endwin();
-        return 2;
-
+        abortar ("ERROR: No se pudo crear el semáforo", 2);
     }
 
-    srand( time(NULL));
+    /* Inicializamos el generador de numeros aleatorio */
+    srand(time(NULL));
 
     /* Crear tortugas */
     for (int i = 0; i < num_tortugas; i++)
     {
+        /* Inicializamos las tortugas y las corremos */
         tortugas[i].color = i+1;
         tortugas[i].numero = i;
         tortugas[i].pos = 1;
@@ -136,16 +139,21 @@ int main(int argc, char *argv[])
         tortugas[i].ventana_carrera = ventana_carrera;
         tortugas[i].ventana_mensajes = ventana_mensajes;
         tortugas[i].semaforo_ventanas = &semaforo_ventanas;
+        /* Generamos el número de pasos y el tiempo de espera */
+        tortugas[i].pasos = rand() % (MAX_PASOS + 1 - MIN_PASOS) + MIN_PASOS;
+        tortugas[i].espera = rand() % (MAX_ESPERA + 1 - MIN_ESPERA) + MIN_ESPERA;
 
-        if (Tortuga_correr (&tortugas[i], &hilos_tortugas[i]) != 0)
+        if (pthread_create(&hilos_tortugas[i], NULL, Tortuga_correr_hilo, &tortugas[i]) != 0)
         {
-            wprintw (ventana_mensajes, "ERROR: No se pudo crear tortuga %d: %d", i, errno);
+            char mensaje[50];
+            sprintf (mensaje, "ERROR: No se pudo crear tortuga %d: %d", i, errno);
             getch();
             endwin();
             return 3;
         }
     }
 
+    /* Hacemos espacio para los resultados */
     Resultado *resultados[10];
 
     /* Esperar tortugas*/

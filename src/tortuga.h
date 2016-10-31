@@ -29,5 +29,6 @@ struct _Resultado {
 };
 
 int Tortuga_correr(Tortuga *tortuga, pthread_t *hilo_ptr);
+void *Tortuga_correr_hilo(void *tortuga_ptr);
 
 #endif

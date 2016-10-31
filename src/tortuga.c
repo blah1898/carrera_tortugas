@@ -9,73 +9,77 @@
 #include "config.h"
 #include "simbolos.h"
 
-void *Tortuga_correr_hilo(void *tortuga_ptr);
-
-int Tortuga_correr(Tortuga *tortuga, pthread_t *hilo_ptr)
-{
-    /* Generamos el número de pasos y el tiempo de espera */
-    tortuga->pasos = rand() % (MAX_PASOS + 1 - MIN_PASOS) + MIN_PASOS;
-    tortuga->espera = rand() % (MAX_ESPERA + 1 - MIN_ESPERA) + MIN_ESPERA;
-
-    ///* Colocamos la tortuga en su posición */
-    //wattron(tortuga->ventana_carrera, COLOR_PAIR(tortuga->color));
-    //mvwadd_wch(tortuga->ventana_carrera, tortuga->numero + 1, tortuga->pos, &U1F422);
-
-    //wrefresh(tortuga->ventana_carrera);
-    
-    /* Creamos el hilo y regresamos el valor de retorno */
-    return pthread_create(hilo_ptr, NULL, Tortuga_correr_hilo, tortuga);
-}
-
 void *Tortuga_correr_hilo(void *tortuga_ptr)
 {
     Tortuga *tortuga = (Tortuga *)tortuga_ptr;
 
+    /* Alocamos memoria para el resultado */
     Resultado *resultado = malloc (sizeof(Resultado));
 
+    /* Vamos guardando el tiempo de espera y el número de pasos */
     resultado->espera = tortuga->espera;
     resultado->pasos= tortuga->pasos;
 
+    /* Guardamos la posición anterior */
     int pos_prev = -1;
 
     while(! *(tortuga->carrera_terminada))
     {
-
+        /* Esperamos a que desocupen la consola */
         sem_wait(tortuga->semaforo_ventanas);
 
-        if (pos_prev != -1)
+        /* Si hay una posición previa, la sobreescribimos con un espacio */
+        if (pos_prev > 0)
         {
-            mvwaddch(tortuga->ventana_carrera, tortuga->numero + 1, pos_prev + 1,' ');
+            mvwaddch(tortuga->ventana_carrera, tortuga->numero + 1, pos_prev, ' ');
         }
 
+        /* Ajustamos los colores de la terminal a los de la tortuga */
         wattrset(tortuga->ventana_mensajes, COLOR_PAIR(tortuga->color));
         wattrset(tortuga->ventana_carrera, COLOR_PAIR(tortuga->color));
 
+        /* Imprimimos la cantida de pasos y tiempo de espera */
         wprintw(tortuga->ventana_mensajes, "T%d: Avanzo %d pasos y duermo %d segundos\n", tortuga->numero, tortuga->pasos, tortuga->espera);
 
-        if (tortuga->pos >= TAMANO_PISTA - 3)
+        /* Si ya se llegó a la meta */
+        if (tortuga->pos >= TAMANO_PISTA - 2)
         {
-            *(tortuga->carrera_terminada) = 1;
-            tortuga->pos = TAMANO_PISTA - 1;
-            wattron(tortuga->ventana_carrera, A_BOLD);
-            mvwadd_wch(tortuga->ventana_carrera, tortuga->numero + 1, tortuga->pos, &U1F422);
+            /* Marcamos que la carrera está terminada */
+            *(tortuga->carrera_terminada) = TRUE;
+
+            /* Ponemos nuestra posición al final */
+            tortuga->pos = TAMANO_PISTA;
+
+            /* Nos movemos allí */
+            mvwadd_wch(tortuga->ventana_carrera, tortuga->numero + 1, tortuga->pos, &U2599);
+
+            /* Actualizamos las ventanas y las liberamos*/
             wrefresh(tortuga->ventana_mensajes);
             wrefresh(tortuga->ventana_carrera);
+            sem_post(tortuga->semaforo_ventanas);
             break;
         }
+        
 
-        mvwadd_wch(tortuga->ventana_carrera, tortuga->numero + 1, tortuga->pos, &U1F422);
+        /* Ponemos la tortuga en la posición adecuada */
+        mvwadd_wch(tortuga->ventana_carrera, tortuga->numero + 1, tortuga->pos, &U2599);
 
+        /* Actualizamos las ventanas */
         wrefresh(tortuga->ventana_mensajes);
         wrefresh(tortuga->ventana_carrera);
 
+        /* Liberamos la ventana */
         sem_post(tortuga->semaforo_ventanas); 
 
+        /* Calculamos la siguiente posición y dormimos */
         pos_prev = tortuga->pos;
         tortuga->pos += tortuga->pasos;
 
         sleep(tortuga->espera);
     }
+
+    /* Almacenamos en el resultado la cantidad de pasos dados y
+     * terminamos */
     resultado->pasos_total = tortuga->pos;
 
     return resultado;

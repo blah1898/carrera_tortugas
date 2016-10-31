@@ -25,7 +25,7 @@ set (VERSION_MAYOR 0)
 set (VERSION_MENOR 1)
 
 # Configuración tamaños de carrera
-set (MAX_TORTUGAS  20)
+set (MAX_TORTUGAS  10)
 set (MIN_TORTUGAS   2)
 set (TAMANO_PISTA 100)
 set (TAMANO_MIN_MENSAJES 5)

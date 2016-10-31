@@ -13,11 +13,11 @@
 
 WINDOW *crear_ventana_bordes(int altura, int anchura, int inicio_y, int inicio_x);
 void abortar(const char *mensaje, int cod_error);
+void generar_colores();
 
 int main(int argc, char *argv[])
 {
     int max_x, max_y;
-    int centro_x, centro_y; /* Para hacer centrados */
     int num_tortugas;
     int bytes_leidos;
 
@@ -28,17 +28,7 @@ int main(int argc, char *argv[])
     start_color();
 
     /* Generamos colores */
-    init_pair(1, 1, 0);
-    init_pair(2, 2, 0);
-    init_pair(3, 3, 0);
-    init_pair(4, 4, 0);
-    init_pair(5, 5, 0);
-    init_pair(6, 6, 0);
-    init_pair(7, 31, 0);
-    init_pair(8, 34, 0);
-    init_pair(9, 35, 0);
-    init_pair(10, 38, 0);
-
+    generar_colores();
     cbreak(); // Recibimos sin necesitar de un enter
     keypad(stdscr, TRUE); // Recibimos teclas de números, así como funciones (F1-F13)
 
@@ -64,9 +54,9 @@ int main(int argc, char *argv[])
             printw("Entrada inválida.\n");
             valido = FALSE;
         }
-        else if (num_tortugas < 2 || num_tortugas > 10)
+        else if (num_tortugas < MIN_TORTUGAS || num_tortugas > MAX_TORTUGAS)
         {
-            printw("Ingrese un número entre 2 y 10\n");
+            printw("Ingrese un número entre %d y %d\n", MIN_TORTUGAS, MAX_TORTUGAS);
             valido = FALSE;
         }
         else
@@ -82,7 +72,6 @@ int main(int argc, char *argv[])
     /* Imprimimos el título */
     const char *titulo = "CARRERA DE TORTUGAS";
     attron(A_BOLD);
-    attron(COLOR_PAIR(1));
     mvaddstr(0, (max_x - strlen(titulo)) / 2, titulo);
     attrset(A_NORMAL);
 
@@ -120,8 +109,8 @@ int main(int argc, char *argv[])
     refresh();
     wrefresh(ventana_mensajes);
 
-    Tortuga tortugas[10];
-    pthread_t hilos_tortugas[10];
+    Tortuga tortugas[MAX_TORTUGAS];
+    pthread_t hilos_tortugas[MAX_TORTUGAS];
     
     // Aqui se almacena si la carrera ya terminó
     int carrera_terminada = 0;
@@ -202,10 +191,21 @@ WINDOW *crear_ventana_bordes(int altura, int anchura, int inicio_y, int inicio_x
 {
     WINDOW *ventana_local;
 
+    /* Creamos la ventana */
     ventana_local = newwin(altura, anchura, inicio_y, inicio_x);
+    /* Los bordes los definimos con estructuras definidas en simbolos.h */
     wborder_set(ventana_local, &U2503, &U2503, &U2501, &U2501, &U250F, &U2513, &U2517, &U251B);
     wrefresh(ventana_local);
 
-
     return ventana_local;
+}
+
+void generar_colores()
+{
+    for (int i = 0; i < MAX_TORTUGAS; i++) {
+        /* Esto genera colores que no son tan oscuros como para que no
+         * se vean */
+        div_t division = div(i+10, 8);
+        init_pair(i+1, division.quot * 20 + division.rem, 0);
+    }
 }

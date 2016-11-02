@@ -8,9 +8,9 @@ Cómo compilar
 ======================
 
 ```bash
-cd \<directorio-del-proyecto\>
-git clone https://github.com/blah1898/carrera\_tortugas.git
-cd carrera\_tortugas
+cd <directorio-del-proyecto>
+git clone https://github.com/blah1898/carrera_tortugas.git
+cd carrera_tortugas
 mkdir build
 cd buld
 cmake ..
